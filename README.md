@@ -1,87 +1,72 @@
 ## rails-middleware-extensions [![Build Status](https://secure.travis-ci.org/camertron/rails-middleware-extensions.png?branch=master)](http://travis-ci.org/camertron/rails-middleware-extensions)
 
-A Ruby version of Python's binascii module.
+Adds several additional operations useful for customizing your Rails middleware stack.
 
 ## Installation
 
-`gem install binascii`
+`gem install rails-middleware-extensions`
 
 ## Usage
 
-```ruby
-require 'binascii'
-```
-
-### Base64
-
-Encodes and decodes text in the base64 format. This differs from Ruby's built-in base64 encoding mechanism in that it removes line breaks from the result and provides the option to append a newline character at the end.
+Just add this gem to your gemfile like so:
 
 ```ruby
-Binascii.b2a_base64('abc')                  # => "YWJj\n"
-Binascii.b2a_base64('abc', newline: false)  # => "YWJj"
-
-Binascii.a2b_base64('YWJj')    # => "abc"
-Binascii.a2b_base64("YWJj\n")  # => "abc"
+gem 'rails-middleware-extensions'
 ```
 
-### CRC32
+## Extensions
 
-This is simply a wrapper around the CRC32 functionality present in Ruby's `Zlib` module.
+Currently two extensions are supported: `move` and `insert_unless_exists`.
+
+### Insert Unless Exists
+
+As the name implies, the given middleware will only be inserted if it has not already been added to the middleware stack. For example, here's how we might insert our custom `MyCustomMiddleware` middleware before `Rails::Logger`:
 
 ```ruby
-Binascii.crc32('abc')  # => 891568578
+config.middleware.insert_unless_exists(Rails::Logger, MyCustomMiddleware)
 ```
 
-### Hexlify
-
-Outputs each byte of the input data as two hexadecimal characters. Produces a string that contains twice as many bytes as the input data.
+`#insert_unless_exists` supports all the arguments regular 'ol `#insert` supports, meaning you can also pass an index to insert before. Here's how to insert our custom middleware at the very beginning of the stack:
 
 ```ruby
-# aliased as .hexlify
-Binascii.b2a_hex('jkl')  # => "6a6b6c"
-
-# aliased as .unhexlify
-Binascii.a2b_hex('6a6b6c')  # => "jkl"
+config.middleware.insert_unless_exists(0, MyCustomMiddleware)
 ```
 
-### HQX and Run-length Encoding
-
-Encodes and decodes bytes in the HQX format. HQX is (apparently) often combined with RLE, or run-length encoding.
+Finally, use `#insert_after_unless_exists` to insert a particular middleware _after_ another one. For example, to insert `MyCustomMiddleware` after `Rails::Logger`:
 
 ```ruby
-rle = Binascii.rlecode_hqx('aaaaabbbbbb')            # => "a\x90\x05b\x90\x06"
-hqx = Binascii.b2a_hqx(rle)                          # => # => "BC!&BT!'"
-
-Binascii.rledecode_hqx(Binascii.a2b_hqx(hqx).first)  # => "aaaaabbbbbb"
+config.middleware.insert_after_unless_exists(Rails::Logger, MyCustomMiddleware)
 ```
 
-`.a2b_hqx` returns an array with two elements. The first is the decoded result, and the second is an integer containing either 1 or 0. 1 indicates decoding was stopped because of the presence of a stop character (ASCII code 58, i.e. a colon, ':'), 0 means no stop character was found.
+### Move
 
-### Quoted-printable
-
-Encodes and decodes bytes in the quoted-printable format.
+As of Rails 5.0, it's not possible to delete a middleware and then re-add it (see [this issue](https://github.com/rails/rails/issues/26303)) because delete operations are always applied last. Instead, consider using `#move`. For example, to move our custom middleware before `Rails::Logger`:
 
 ```ruby
-Binascii.b2a_qp("some \x12 \x14 data")  # => "some =12 =14 data"
-Binascii.a2b_qp('some =12 =14 data')    # => "some \x12 \x14 data"
+config.middleware.move(Rails::Logger, MyCustomMiddleware)
 ```
 
-### Unix-to-unix
-
-Encodes and decodes bytes in the unix-to-unix format.
+Consider `#move`'s cousin, `#move_after`, to move a piece of middleware after another:
 
 ```ruby
-Binascii.b2a_uu("abc\n")         # => "$86)C\"@  \n"
-Binascii.a2b_uu("$86)C\"@  \n")  # => "abc\n"
+config.middleware.move_after(Rails::Logger, MyCustomMiddleware)
 ```
 
-## Running Benchmarks
+As with `#insert_unless_exists`, `#move` and `#move_after` also support numeric indices:
 
-Benchmarks are provided for most of Binascii's functionality in the bench/ directory. Run each benchmark directly, i.e. `bundle exec ruby bench/hqx_bench.rb`. Binascii's algorithms are compared to native Ruby versions when they are available. However it should be noted that, with the exception of CRC32, all algorithms implemented by this library will not produce exactly the same output as their Ruby counterparts as they accept generally more options and therefore produce more customizable output. It should also be noted that the Ruby equivalents are all implemented in C and will therefore be much faster in most cases.
+```ruby
+config.middleware.move(0, MyCustomMiddleware)
+```
 
 ## Running Tests
 
-`bundle exec rspec` should do the trick :)
+`bundle exec rspec` should do the trick :) Rails-middleware extensions supports a number of Rails versions, hence all the Gemfiles. There is one Gemfile per supported Rails version. If you'd like to run tests against a particular version, use the `BUNDLE_GEMFILE` environment variable like so:
+
+```bash
+BUNDLE_GEMFILE=Gemfile-rails-4.1.x bundle exec rspec
+```
+
+By default tests will run against Rails 5.2.x.
 
 ## License
 
