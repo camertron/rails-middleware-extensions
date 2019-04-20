@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.email    = ['camertron@gmail.com']
   s.homepage = 'http://github.com/camertron/rails-middleware-extensions'
 
-  s.description = s.summary = 'Adds several additional operations useful for customization of your Rails middleware stack'
+  s.description = s.summary = 'Adds several additional operations useful for customizing your Rails middleware stack.'
 
   s.platform = Gem::Platform::RUBY
   s.has_rdoc = true

@@ -14,14 +14,20 @@ describe 'middleware extensions' do
   end
 
   before do
-    # Rails 4 unfortunately stores a number of things in class variables that survive
-    # creating new application instances. We have to clean things up here by forcibly
-    # resetting them all back to nil or we'll see some test pollution, i.e. middleware
-    # stacks from previous examples will persist into the contexts of other examples.
     unless RailsMiddlewareExtensions.rails5?
+      # Rails 4 unfortunately stores a number of things in class variables that survive
+      # creating new application instances. We have to clean things up here by forcibly
+      # resetting them all back to nil or we'll see some test pollution, i.e. middleware
+      # stacks from previous examples will persist into the contexts of other examples.
+
       (Rails::Railtie::Configuration.class_variables - [:@@options]).each do |cv|
         Rails::Railtie::Configuration.class_variable_set(cv, nil)
       end
+
+      # Furthermore, Rails 4.0 raises an error if you try to subclass Rails::Application.
+      # It checks to see if Rails.application non-nil, so we set it to nil here as a
+      # workaround.
+      Rails.application = nil
     end
   end
 

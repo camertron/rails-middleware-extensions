@@ -1,7 +1,5 @@
 sudo: false
 language: ruby
-rvm:
-  - 2.5.3
 
 notifications:
   email: false
@@ -11,10 +9,17 @@ before_install:
 
 script: bundle exec rspec spec
 
-gemfile:
-  - Gemfile-rails-4.0.x
-  - Gemfile-rails-4.1.x
-  - Gemfile-rails-4.2.x
-  - Gemfile-rails-5.0.x
-  - Gemfile-rails-5.1.x
-  - Gemfile-rails-5.2.x
+matrix:
+  include:
+    - gemfile: Gemfile-rails-4.0.x
+      rvm: 2.3.7
+    - gemfile: Gemfile-rails-4.1.x
+      rvm: 2.3.7
+    - gemfile: Gemfile-rails-4.2.x
+      rvm: 2.5.3
+    - gemfile: Gemfile-rails-5.0.x
+      rvm: 2.5.3
+    - gemfile: Gemfile-rails-5.1.x
+      rvm: 2.5.3
+    - gemfile: Gemfile-rails-5.2.x
+      rvm: 2.5.3
