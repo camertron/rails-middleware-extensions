@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'railties', '>= 4.0'
   s.add_dependency 'actionpack', '>= 4.0'
 
-  s.add_development_dependency 'pry-byebug'
+  s.add_development_dependency 'pry-byebug', '~> 3.8.0'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
 
