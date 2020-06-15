@@ -11,15 +11,13 @@ script: bundle exec rspec spec
 
 matrix:
   include:
-    - gemfile: Gemfile-rails-4.0.x
-      rvm: 2.3.7
-    - gemfile: Gemfile-rails-4.1.x
-      rvm: 2.3.7
     - gemfile: Gemfile-rails-4.2.x
-      rvm: 2.5.3
+      rvm: 2.5.8
     - gemfile: Gemfile-rails-5.0.x
-      rvm: 2.5.3
+      rvm: 2.5.8
     - gemfile: Gemfile-rails-5.1.x
-      rvm: 2.5.3
+      rvm: 2.5.8
     - gemfile: Gemfile-rails-5.2.x
-      rvm: 2.5.3
+      rvm: 2.5.8
+    - gemfile: Gemfile-rails-6.0.x
+      rvm: 2.7.1
